@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conjunction Playground</title>
+<style>
+:root{--bg:#fbf8f3;--fg:#1d1b2e;--card:#fff;--mut:#6b6880;--bd:#e7e2d9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14131c;--fg:#f2efff;--card:#1e1c2b;--mut:#a39fbd;--bd:#2f2c42}}
+:root[data-theme="dark"]{--bg:#14131c;--fg:#f2efff;--card:#1e1c2b;--mut:#a39fbd;--bd:#2f2c42}
+*{box-sizing:border-box}html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:clamp(26px,6vw,40px);margin:6px 0 4px;line-height:1.1}
+.sub{color:var(--mut);margin:0 0 14px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:8px 0;z-index:5}
+.tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.tab,.chip,.opt,.tbtn{border:2px solid var(--bd);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer}
+.tab.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tbtn{margin-left:auto}
+input[type=search]{width:100%;padding:11px 16px;border-radius:14px;border:2px solid var(--bd);background:var(--card);color:var(--fg);font:inherit}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px}
+.chip{white-space:nowrap;font-size:13px;padding:4px 11px}
+.chip.on{background:hsl(var(--h),70%,50%);border-color:hsl(var(--h),70%,50%);color:#fff}
+.fam{margin:22px 0;border-radius:20px;border:2px solid hsl(var(--h),60%,55%);background:var(--card);overflow:hidden}
+.fh{padding:14px 18px;background:hsl(var(--h),75%,52%);color:#fff}
+.fh h2{margin:0;font-size:22px}.fh p{margin:2px 0 0;opacity:.92;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:14px}
+.w{border:2px solid hsl(var(--h),55%,70%);border-radius:14px;padding:10px 12px;cursor:pointer;background:hsl(var(--h),80%,97%);color:#1d1b2e;transition:transform .12s}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .w{background:hsl(var(--h),30%,18%);color:#f2efff}}
+:root[data-theme="dark"] .w{background:hsl(var(--h),30%,18%);color:#f2efff}
+.w:hover{transform:translateY(-2px)}
+.w b{font-size:17px}
+.t{float:right;font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;color:#fff}
+.CC{background:#e8590c}.SC{background:#1971c2}.CA{background:#7048e8}.CORR{background:#2f9e44}.PH{background:#868e96}.PREP{background:#c2255c}
+.m{font-size:13px;opacity:.85;margin-top:4px}
+.ex{display:none;margin-top:6px;padding-top:6px;border-top:1px dashed hsl(var(--h),40%,60%);font-style:italic;font-size:14px}
+.w.open .ex{display:block}
+.vs{padding:0 14px 14px;display:grid;gap:8px}
+.vs h3{margin:6px 0 0;font-size:15px}
+.v{border-left:5px solid hsl(var(--h),70%,50%);background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14px}
+.v b{color:hsl(var(--h),65%,45%)}
+.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin:6px 0}
+.legend span{color:#fff;padding:2px 8px;border-radius:8px}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:16px;padding:14px 16px;margin:12px 0}
+.ok{color:#2f9e44;font-weight:700}.no{color:#e03131;font-weight:700}
+.opts{display:grid;gap:8px;margin:10px 0}.opt{text-align:left;border-radius:12px}
+.opt.good{background:#2f9e44;color:#fff;border-color:#2f9e44}.opt.bad{background:#e03131;color:#fff;border-color:#e03131}
+.hide{display:none}
+</style></head><body><div class="wrap">
+<h1>🧩 Conjunction Playground</h1>
+<p class="sub">Tap any word to reveal an example. Same colour = same meaning family. Tricky look-alikes get their own “spot the difference” cards.</p>
+<div class="bar">
+<div class="tabs"><button class="tab on" data-p="ex">Explore</button><button class="tab" data-p="pu">Punctuation</button><button class="tab" data-p="qz">Quiz</button><button class="tbtn" id="th">🌓</button></div>
+<div id="tools"><input type="search" id="q" placeholder="Search a word, e.g. however…"><div class="chips" id="chips"></div></div></div>
+<div class="legend"><span class="CC">CC coordinating</span><span class="SC">SC subordinating</span><span class="CA">CA transition adverb</span><span class="CORR">CORR pair</span><span class="PH">PH phrase</span><span class="PREP">PREP preposition, not a conjunction</span></div>
+<div id="ex"></div>
+<div id="pu" class="hide"></div>
+<div id="qz" class="hide"></div>
+</div>
+<script>
+const F=[
+{n:"Addition",e:"➕",h:210,d:"Pile one idea on top of another.",w:[
+["and","CC","Plain joiner, equal weight","I cooked, and she cleaned."],
+["also","CA","Adds a point; can move","She is also kind."],
+["besides","CA","Extra, often decisive reason","I won’t go; besides, it’s raining."],
+["moreover","CA","Formal: stronger extra point","It’s cheap; moreover, it’s safe."],
+["furthermore","CA","Formal: extends the argument","Furthermore, the data agrees."],
+["plus","CC","Casual “and”","It’s cheap, plus it’s fast."],
+["likewise","CA","Adds a similar point","Cats shed. Likewise, dogs need grooming."],
+["not only…but also","CORR","Addition with emphasis","She not only sings but also dances."]],
+v:[["and","also","“And” is a true conjunction; “also” is an adverb. ✗ He ran, also he jumped. ✓ He ran, and he also jumped."],["moreover","besides","“Moreover” = formal writing. “Besides” = spoken, a personal extra reason."],["and","as well as","“A and B are” takes a plural verb. “A, as well as B, is” follows the first subject."]]},
+{n:"Contrast",e:"⚔️",h:0,d:"Set two ideas against each other.",w:[
+["but","CC","Default opposition","I tried, but I failed."],
+["yet","CC","Opposition with surprise","He’s rich, yet unhappy."],
+["however","CA","Formal “but”; movable","It’s good; however, it’s costly."],
+["nevertheless","CA","Despite everything just said","It rained; nevertheless, we played."],
+["whereas","SC","Two facts side by side","He is tall, whereas she is short."],
+["on the other hand","PH","Balancing view of one question","Cities are fun. On the other hand, they’re noisy."],
+["on the contrary","PH","Says the last claim is wrong","It isn’t easy. On the contrary, it’s hard."],
+["instead","CA","A replacement","He didn’t call. Instead, he wrote."],
+["conversely","CA","The reverse is true","Heat expands metal; conversely, cold shrinks it."]],
+v:[["but","however","“But” joins with a comma; “however” needs ; or . before it. ✗ It’s good, however it’s costly."],["but","yet","“Yet” signals the contrast is unexpected."],["on the other hand","on the contrary","Other hand = adds a side. Contrary = denies the claim."]]},
+{n:"Concession",e:"🤝",h:28,d:"“True, BUT still…”",w:[
+["although","SC","Standard concession","Although he was tired, he stayed."],
+["though","SC","Same; can end a sentence","It’s nice, though."],
+["even though","SC","Stronger; a real fact","Even though it rained, we went."],
+["even if","SC","A hypothetical case","Even if it rains, we’ll go."],
+["albeit","SC","Literary “although it is”","A good, albeit costly, choice."],
+["no matter how","SC","No limit","No matter how I try, I fail."],
+["despite","PREP","+ noun or -ing only","Despite the rain, we went."],
+["while / whilst","SC","Concession with contrast","While I agree, I have doubts."]],
+v:[["although","despite","Although + clause. Despite + noun. ✗ Despite it was late. ✓ Despite the late hour."],["even though","even if","Even though = real fact. Even if = maybe."],["although","but","Never both. ✗ Although tired, but he came."]]},
+{n:"Cause",e:"🔍",h:165,d:"Answer the question “why?”",w:[
+["because","SC","Strongest, new reason","We stayed in because it rained."],
+["since","SC","Reason already known","Since you’re here, help me."],
+["as","SC","Weak background reason","As it was late, we left."],
+["for","CC","Literary; never first","He left, for he was ill."],
+["now that","SC","Reason from a new situation","Now that you’re here, begin."],
+["given that","SC","Known starting point","Given that it’s late, go."],
+["because of","PREP","+ noun","Because of the rain, we stayed."],
+["inasmuch as","SC","Formal “to the extent that”","Inasmuch as he lied, he’s liable."]],
+v:[["because","since / as","Because answers “Why?” directly. Since/as give a reason the listener already knows."],["because","because of","Because + clause. Because of + noun."],["for","because","“For” is formal, needs a comma, never starts a sentence."]]},
+{n:"Result",e:"🎯",h:135,d:"What happened because of that.",w:[
+["so","CC","Plain result","It rained, so we stayed."],
+["therefore","CA","Logical conclusion","He’s the boss; therefore, he decides."],
+["thus","CA","Result, or “in this way”","Costs fell; thus, profits rose."],
+["hence","CA","“From this it follows”","Hence the name."],
+["consequently","CA","Result of events","He missed the bus; consequently, he was late."],
+["as a result","PH","Result of something specific","As a result, sales doubled."],
+["so…that","CORR","Result of a degree","So cold that the lake froze."],
+["accordingly","CA","An appropriate response","The rules changed; we adjusted accordingly."]],
+v:[["so","therefore","“So” = comma before. “Therefore” = semicolon or full stop. ✗ It rained, therefore we left."],["so","so that","So = result (comma). So that = purpose (no comma, modal)."],["so…that","such…that","So + adjective. Such + (adjective) noun."]]},
+{n:"Condition",e:"🔀",h:270,d:"“Only if this happens…”",w:[
+["if","SC","Basic condition","If it rains, we’ll stay."],
+["unless","SC","= “if not”","We’ll go unless it rains."],
+["only if","SC","The sole condition","Enter only if you have a ticket."],
+["provided that","SC","Must be met","Go, provided that you call."],
+["as long as","SC","Condition over time","Stay as long as you’re quiet."],
+["in case","SC","Prepare BEFORE","Take an umbrella in case it rains."],
+["otherwise / or else","CA","Result if condition fails","Hurry; otherwise, we’ll miss it."],
+["lest","SC","Literary “for fear that”","Take care lest you fall."]],
+v:[["if","unless","Unless = if not. ✗ Unless you don’t hurry."],["if","in case","If = act AFTER it happens. In case = act BEFORE."],["if","when","If = maybe. When = definitely."]]},
+{n:"Purpose",e:"🧭",h:190,d:"The goal behind an action.",w:[
+["so that","SC","Most common; with can/could","I left early so that I could rest."],
+["in order that","SC","Formal “so that”","Rules exist in order that all are safe."],
+["in order to","PH","+ verb","I study in order to improve."],
+["so as to","PH","+ verb; formal","We left so as not to be late."],
+["lest","SC","Purpose to avoid","He hid lest anyone see him."],
+["for fear that","PH","Purpose driven by fear","She whispered for fear they’d hear."]],
+v:[["so that","in order to","So that + clause with its own subject. In order to + verb only."],["so that","so","Purpose has no comma. Result has one: “…early, so I caught it.”"]]},
+{n:"Time",e:"⏰",h:48,d:"When things happen.",w:[
+["when","SC","A moment or period","When I arrived, it rained."],
+["while","SC","Two actions at once","She read while he cooked."],
+["as","SC","At the same moment / gradually","As we grew older, we drifted."],
+["before / after","SC","Earlier / later","Wash before you eat."],
+["since","SC","From a past start until now","I’ve lived here since 2015."],
+["until","SC","Continues up to a point","Wait until I call."],
+["by the time","SC","Finished before a point","By the time we came, they’d left."],
+["once / as soon as","SC","Immediately after","Call me as soon as you land."],
+["no sooner…than","CORR","Formal; inversion","No sooner had I sat than it rang."]],
+v:[["when","while / as","When = moment. While = long overlapping action. As = same moment or changing together."],["until","by the time","Until = keeps going. By the time = already done."],["will","present","Use the present for the future after time words. ✗ When I will arrive."]]},
+{n:"Alternative",e:"🔱",h:312,d:"Choose, refuse or swap.",w:[
+["or","CC","A choice","Tea or coffee?"],
+["either…or","CORR","Exactly one of two","Either walk or take the bus."],
+["neither…nor","CORR","Neither is true","Neither Tom nor Sara came."],
+["nor","CC","2nd negative; verb inverts","He didn’t call, nor did he write."],
+["or else","CC","Threat or warning","Hurry, or else you’ll be late."],
+["whether…or","CORR","Two possibilities","I don’t know whether he left or stayed."],
+["rather than","SC","Prefers one","Rather than complain, act."]],
+v:[["or","either…or","“Or” can offer many; either…or offers two."],["neither…nor","neither…or","✗ neither…or. ✓ neither…nor. And no double negatives."],["either…or","verb","The verb agrees with the NEARER subject."]]},
+{n:"Exception",e:"🚫",h:340,d:"Everything except…",w:[
+["except","SC","Excludes","Everyone came except Tom."],
+["except that","SC","Exception to a fact","Perfect, except that it’s small."],
+["unless","SC","Exception to a condition","Don’t call unless it’s urgent."],
+["save","PREP","Literary “except”","All left, save him."],
+["other than","PREP","Besides or except","Other than that, fine."],
+["barring","PREP","Unless there is","Barring accidents, we arrive at noon."],
+["only","CC","Informal “but”","I’d go, only I’m busy."]],
+v:[["besides","except","Besides ADDS (Besides Tom, Sara came). Except EXCLUDES (Everyone except Tom came)."],["unless","except that","Unless limits a condition. Except that limits a fact."]]},
+{n:"Example & Summary",e:"💡",h:95,d:"Clarify, illustrate, wrap up.",w:[
+["for example","CA","Introduces a sample","For example, lemons are sour."],
+["such as","PH","Examples inside the sentence","Fruits such as lemons are sour."],
+["namely","CA","The exact items","Two modes, namely manual and auto."],
+["i.e.","CA","“That is”: restates all","Pick a primary colour, i.e., red, yellow or blue."],
+["e.g.","CA","“For example”: some","Pick a bright colour, e.g., red."],
+["in fact","CA","Strengthens or corrects","It’s good. In fact, it’s the best."],
+["after all","CA","A reason to accept","Go. After all, you paid."],
+["in conclusion","CA","Closes an argument","In conclusion, the evidence is clear."]],
+v:[["i.e.","e.g.","i.e. = that is (all of it). e.g. = for example (some of it)."],["for example","such as","For example is a transition with commas. Such as sits inside the sentence."]]},
+{n:"Manner, Place & More",e:"🗺️",h:240,d:"How, where, how much.",w:[
+["as","SC","In the way that","Do as I say."],
+["like","PREP","Informal “as”; best + noun","She looks like her mother."],
+["as if / as though","SC","Unreal manner","She talks as if she knew all."],
+["than","SC","Unequal comparison","Taller than I am."],
+["as…as","CORR","Equality","As tall as he is."],
+["where / wherever","SC","One place / any place","Sit wherever you like."],
+["whereby","SC","By which means","A rule whereby staff sign in."],
+["that / whether / if","SC","Start a noun clause","I wonder whether it’s true."]],
+v:[["as","like","As + clause. Like + noun (formal usage)."],["than","then","Than compares. Then = time. ✗ taller then me."],["whether","if","Use whether before “to” or with “or not”."]]}
+];
+const P=[["Two clauses + FANBOYS","Comma before the conjunction.","I wanted to leave, but the meeting continued.","I wanted to leave but, the meeting continued."],
+["One subject, two verbs","No comma.","She opened the door and walked in.","She opened the door, and walked in."],
+["Subordinate clause first","Comma after the whole clause.","Although it was late, we kept working.","Although it was late we kept working."],
+["Subordinate clause last","Usually no comma (contrast words may take one).","We kept working although it was late.","We kept working, because it was late."],
+["Transition between clauses","Semicolon before, comma after.","It was late; therefore, we left.","It was late, therefore we left."],
+["Comma splice","Never join two clauses with only a comma.","It was late, so we went home.","It was late, we went home."],
+["Lists","Oxford comma avoids confusion.","My parents, Maria, and Ahmed.","My parents, Maria and Ahmed (unclear)."],
+["Correlatives","Keep both halves parallel.","She likes both swimming and dancing.","She likes both to swim and dancing."]];
+const Q0=[["It rained, ___ we stayed in.",["so","therefore","however"],0,"“So” takes a comma. “Therefore” would need a semicolon."],
+["___ the rain, we went out.",["Although","Despite","Because"],1,"Despite + noun. Although needs a clause."],
+["Take an umbrella ___ it rains.",["if","in case","unless"],1,"In case = prepare before it happens."],
+["Everyone came ___ Tom. (he stayed away)",["besides","except","also"],1,"Except excludes. Besides adds."],
+["Neither Tom ___ Sara came.",["or","nor","and"],1,"Neither pairs with nor."],
+["I’ll call you ___ I arrive.",["when I will","when I","when will I"],1,"Present tense after time words."],
+["He was tired; ___, he kept working.",["but","nevertheless","so"],1,"A semicolon pairs with a transition such as nevertheless."]];
+const $=s=>document.querySelector(s);let cur="all";
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function draw(){const t=$("#q").value.toLowerCase();let o="";
+F.forEach((f,i)=>{if(cur!="all"&&cur!=i)return;
+const ws=f.w.filter(x=>!t||x.join(" ").toLowerCase().includes(t));if(!ws.length)return;
+o+=`<section class="fam" style="--h:${f.h}"><div class="fh"><h2>${f.e} ${f.n}</h2><p>${f.d}</p></div><div class="grid">`+
+ws.map(x=>`<div class="w"><span class="t ${x[1]}">${x[1]}</span><b>${esc(x[0])}</b><div class="m">${esc(x[2])}</div><div class="ex">${esc(x[3])}</div></div>`).join("")+
+`</div>`+(t?"":`<div class="vs"><h3>⚖️ Spot the difference</h3>`+f.v.map(v=>`<div class="v"><b>${esc(v[0])}</b> vs <b>${esc(v[1])}</b><br>${esc(v[2])}</div>`).join("")+`</div>`)+`</section>`});
+$("#ex").innerHTML=o||`<p class="sub">No match. Try another word.</p>`;
+document.querySelectorAll(".w").forEach(e=>e.onclick=()=>e.classList.toggle("open"))}
+$("#chips").innerHTML=`<button class="chip on" style="--h:250" data-i="all">All</button>`+F.map((f,i)=>`<button class="chip" style="--h:${f.h}" data-i="${i}">${f.e} ${f.n}</button>`).join("");
+$("#chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;cur=b.dataset.i=="all"?"all":+b.dataset.i;document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",c==b));draw()};
+$("#q").oninput=draw;
+$("#pu").innerHTML=P.map(p=>`<div class="card"><b>${p[0]}</b><div class="sub" style="margin:2px 0 8px">${p[1]}</div><div><span class="ok">✓</span> ${esc(p[2])}</div><div><span class="no">✗</span> ${esc(p[3])}</div></div>`).join("");
+const Q=[
+["No sooner ___ the door than the alarm went off.",["had she opened","she had opened","did she open"],0,"“No sooner” triggers inversion with the past perfect, followed by “than”."],
+["Hardly had we arrived ___ it started to pour.",["than","when","that"],1,"Hardly and scarcely pair with “when”; “no sooner” pairs with “than”."],
+["Not only ___ late, but he also forgot the documents.",["he was","was he","he is"],1,"A fronted “not only” inverts subject and verb."],
+["Only when the results were published ___ the error.",["they noticed","did they notice","they did notice"],1,"“Only when” at the start of a sentence triggers inversion."],
+["Tired ___ he was, he finished the report.",["although","as","while"],1,"Adjective + as + clause is a concessive structure meaning “although he was tired”."],
+["Much ___ I admire her, I cannot support the plan.",["as","than","so"],0,"“Much as” is a formal concessive meaning “although I admire her very much”."],
+["___ it not been for your help, I would have failed.",["Were","Had","Should"],1,"Third-conditional inversion: Had + subject + not been = if it had not been."],
+["___ you require further assistance, please contact us.",["Should","Would","Unless"],0,"“Should” + subject replaces “If you should require…”, a formal conditional."],
+["He behaved as if he ___ the owner.",["is","were","will be"],1,"An unreal comparison takes the past subjunctive “were”."],
+["I insist that she ___ present at the meeting.",["is","be","will be"],1,"The mandative subjunctive uses the base form after verbs like insist, demand, suggest."],
+["Which sentence is punctuated correctly?",["The results were clear; however they ignored them.","The results were clear; however, they ignored them.","The results were clear, however, they ignored them."],1,"A transition between independent clauses takes a semicolon before and a comma after. Option 3 is a comma splice."],
+["Which sentence is correct?",["Despite he was ill, he worked.","Despite being ill, he worked.","Despite of being ill, he worked."],1,"Despite takes a noun or an -ing form and is never followed by “of”."],
+["He neither smokes ___ drinks.",["or","nor","and"],1,"Neither always pairs with nor."],
+["Neither the manager nor the employees ___ informed.",["was","were","is"],1,"With neither…nor the verb agrees with the nearer subject (employees)."],
+["Either the students or the teacher ___ responsible.",["are","is","were"],1,"The nearer subject is “teacher”, so the verb is singular."],
+["Which sentence is parallel?",["She likes hiking, to swim, and biking.","She likes hiking, swimming, and biking.","She likes to hike, swimming, and biking."],1,"Items in a series must share the same grammatical form."],
+["Which correlative sentence is parallel?",["He is not only a good teacher but also writes novels.","He not only teaches well but also writes novels.","Not only he teaches well but also writes novels."],1,"What follows “not only” and “but also” must have the same form: here, two verb phrases."],
+["I’ll lend you the car ___ you drive carefully.",["provided that","despite","lest"],0,"“Provided that” introduces a necessary condition."],
+["Take a map ___ your phone loses signal.",["if","in case","unless"],1,"“In case” means you prepare before the event happens."],
+["Which sentence is correct?",["Unless you don’t hurry, you’ll miss it.","Unless you hurry, you’ll miss it.","If you won’t hurry unless you miss it."],1,"“Unless” already means “if…not”, so adding a second negative is wrong."],
+["The report is useful ___ it identifies three risks.",["in that","so that","for that"],0,"“In that” explains in what way the statement is true."],
+["___ I know, he has not resigned.",["As far as","As long as","Even though"],0,"“As far as I know” limits a claim to your knowledge; “as long as” is a condition."],
+["In which sentence is “for” a conjunction?",["He waited for an hour.","He left early, for he was ill.","This gift is for you."],1,"As a coordinating conjunction, “for” joins two clauses and gives a reason. Elsewhere it is a preposition."],
+["It was a short, ___ productive, meeting.",["albeit","whereas","lest"],0,"“Albeit” introduces a concession inside a phrase."],
+["Some critics praised the film, ___ others found it dull.",["whereas","therefore","provided"],0,"“Whereas” contrasts two facts side by side."],
+["___ the evidence, the court acquitted him.",["Notwithstanding","Albeit","Whereas"],0,"“Notwithstanding” is a formal preposition meaning “despite”."],
+["The firm cut costs, ___ improving its margins.",["thereby","whereas","nevertheless"],0,"“Thereby” + -ing shows a result achieved by the action just stated."],
+["A system ___ every citizen can vote online.",["whereby","whereupon","whereas"],0,"“Whereby” means “by which (means)”."],
+["She finished speaking, ___ the audience rose and applauded.",["whereupon","whereby","wherein"],0,"“Whereupon” means “and immediately after that”."],
+["The more you practise, ___ you become.",["the better","better","the best"],0,"Proportional structure: the + comparative, the + comparative."],
+["I’d rather you ___ me the truth.",["tell","told","will tell"],1,"“Would rather” + a different subject takes the past tense."],
+["I will have finished ___ you arrive.",["until","by the time","as long as"],1,"“By the time” marks a deadline for something completed; “until” marks continuation."],
+["Which sentence expresses negative purpose correctly?",["She whispered lest the baby woke.","She whispered lest the baby wake.","She whispered lest the baby will wake."],1,"After “lest” use the base-form subjunctive (or should + verb)."],
+["Which sentence is a comma splice?",["It rained, so we left.","It rained, we left.","It rained; we left."],1,"Two independent clauses are joined by only a comma."],
+["Which sentence needs no comma before “and”?",["I cooked dinner, and she washed up.","He opened the door and walked in.","It was late, and the shops were closed."],1,"One subject with two verbs takes no comma."],
+["You have exactly one brother. Which is correct?",["My brother, who lives in Cairo, is a doctor.","My brother who lives in Cairo is a doctor.","My brother, that lives in Cairo, is a doctor."],0,"Extra (non-restrictive) information takes commas and who. Without commas it implies several brothers."],
+["Which sentence is correct?",["I wonder if or not he will come.","I wonder whether or not he will come.","I wonder that he will come."],1,"“Whether”, not “if”, combines with “or not”."],
+["The question ___ to resign remains open.",["of whether","of if","that whether"],0,"After a preposition use whether, not if."],
+["Which sentence is correct?",["It was so a cold day that we stayed in.","It was such a cold day that we stayed in.","It was so cold a day than we stayed in."],1,"Such + a + adjective + noun; so + adjective. The result clause needs “that”."],
+["Which sentence is correct?",["Because of he was late, we started.","Because he was late, we started.","Because the his lateness, we started."],1,"Because + clause; because of + noun."],
+["“Be that as it may” introduces…",["a concession","a purpose","a condition"],0,"It means “even if that is true” and concedes a point before moving on."],
+["“Having said that” works as…",["a contrast marker","a time marker","an addition marker"],0,"It qualifies or balances the previous statement."],
+["Tom stayed home and everyone else was invited. Which is correct?",["Everyone besides Tom was invited.","Everyone except Tom was invited.","Everyone also Tom was invited."],1,"“Except” excludes; “besides” adds."],
+["In which sentence is “as” a cause conjunction?",["As I was leaving, the phone rang.","As it was late, we went home.","He is as tall as I am."],1,"It means “because”. The first is time, the third is comparison."],
+["“Inasmuch as he lied, he is liable” means…",["because / to the extent that","although","before"],0,"A formal causal conjunction."],
+["The data is limited; ___, the trend is clear.",["so","nonetheless","because"],1,"After a semicolon use a transition adverb; “nonetheless” marks contrast."],
+["Which sentence is correct?",["No matter how hard he tried, he failed.","No matter how hard did he try, he failed.","No matter hard he tried, he failed."],0,"The subordinate clause keeps normal word order and needs “how”."],
+["___ you decide, I will support you.",["Whatever","Whenever","Wherever"],0,"“Whatever” = no matter what."],
+["The meeting was cancelled ___ the speaker was ill.",["on the grounds that","in spite of","so that"],0,"“On the grounds that” is a formal way to give a reason."],
+["Which sentence is correct?",["Neither the plan nor the budget were approved.","Neither the plan nor the budget was approved.","Neither the plan or the budget was approved."],1,"Neither pairs with nor, and the verb agrees with the nearer subject (budget)."]
+];
+Q.forEach(q=>{const c=q[1][q[2]];q[1].sort(()=>Math.random()-.5);q[2]=q[1].indexOf(c)});
+Q.sort(()=>Math.random()-.5);
+let qi=0,sc=0;
+function quiz(){if(qi>=Q.length){$("#qz").innerHTML=`<div class="card"><h2>Score: ${sc}/${Q.length} ${sc>=Q.length*0.8?"🏆":sc>=Q.length*0.5?"👏":"💪"}</h2><button class="tab on" onclick="qi=0;sc=0;quiz()">Play again</button></div>`;return}
+const q=Q[qi];$("#qz").innerHTML=`<div class="card"><div class="sub">Question ${qi+1} of ${Q.length}</div><h3>${esc(q[0])}</h3><div class="opts">`+q[1].map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join("")+`</div><div id="fb"></div></div>`;
+document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;document.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+b.classList.add(i==q[2]?"good":"bad");if(i==q[2])sc++;else document.querySelectorAll(".opt")[q[2]].classList.add("good");
+$("#fb").innerHTML=`<p>${q[3]}</p><button class="tab on" id="nx">Next</button>`;$("#nx").onclick=()=>{qi++;quiz()}})}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x==b));["ex","pu","qz"].forEach(p=>$("#"+p).classList.toggle("hide",p!=b.dataset.p));$("#tools").classList.toggle("hide",b.dataset.p!="ex");document.querySelector(".legend").classList.toggle("hide",b.dataset.p!="ex");if(b.dataset.p=="qz"){qi=0;sc=0;quiz()}});
+$("#th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme=="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark"};
+draw();
+</script></body></html>
